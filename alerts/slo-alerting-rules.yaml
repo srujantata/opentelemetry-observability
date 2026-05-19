@@ -1,0 +1,59 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: example-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: slo-burn-rate
+    rules:
+    - alert: SLOBurnRateFast
+      expr: rate(http_requests_total{job="my-service"}[1h]) > 0.5
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        runbook_url: "https://example.com/runbooks/slo-burn-rate-fast"
+    - alert: SLOBurnRateSlow
+      expr: rate(http_requests_total{job="my-service"}[6h]) > 0.25
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        runbook_url: "https://example.com/runbooks/slo-burn-rate-slow"
+  - name: node-memory-usage
+    rules:
+    - alert: NodeMemoryUsageHigh
+      expr: (node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes) / node_memory_MemTotal_bytes * 100 > 85
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        runbook_url: "https://example.com/runbooks/node-memory-usage"
+  - name: pod-crash-loop-backoff
+    rules:
+    - alert: PodCrashLoopBackOff
+      expr: sum(rate(kube_pod_container_status_restarts_total{job="kube-state-metrics", container!="POD"}[15m])) by (namespace, pod) > 5
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        runbook_url: "https://example.com/runbooks/pod-crash-loop-backoff"
+  - name: pvc-usage
+    rules:
+    - alert: PVCUsageHigh
+      expr: (persistentvolumeclaim_storage_used_bytes / persistentvolumeclaim_capacity_bytes) * 100 > 80
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        runbook_url: "https://example.com/runbooks/pvc-usage"
+  - name: certificate-expiry
+    rules:
+    - alert: CertificateExpirySoon
+      expr: max(kube_api_server_client_ca_cert_expiration_timestamp_seconds) - time() < 1209600
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        runbook_url: "https://example.com/runbooks/certificate-expiry"

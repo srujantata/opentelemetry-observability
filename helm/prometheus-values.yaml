@@ -1,0 +1,34 @@
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+grafana:
+  adminPasswordSecretName: grafana-admin-password-secret
+
+alertmanager:
+  alertmanagerSpec:
+    receivers:
+      - name: 'slack'
+        slackConfigs:
+          - apiURLs:
+              - ${SLACK_WEBHOOK_URL}  # set via: kubectl create secret generic alertmanager-slack --from-literal=webhook=$SLACK_WEBHOOK_URL
+            channel: '#alerts'
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+prometheusSpec:
+  scrapeInterval: "15s"
+
+remoteWrite:
+  - url: "http://otel-collector:4318/api/v1/write"

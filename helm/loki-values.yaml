@@ -1,0 +1,67 @@
+loki:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: false
+  storageClassName: "standard"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "400m"
+  config:
+    server:
+      http_listen_port: 3100
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: s3
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /tmp/loki/index
+        cache_location: /tmp/loki/cache
+        shared_store: s3
+      aws_s3:
+        bucketnames:
+          - placeholder-bucket-name
+        endpoint: s3.amazonaws.com
+        access_key_id: YOUR_ACCESS_KEY_ID
+        secret_access_key: YOUR_SECRET_ACCESS_KEY
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 7d
+
+promtail:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "400m"
+  config:
+    server:
+      http_listen_port: 9080
+    positions_config:
+      filename: /tmp/positions.yaml
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        pipeline_stages:
+          - labels:
+              namespace: __meta_kubernetes_pod_namespace
+              pod: __meta_kubernetes_pod_label_app
+              container: __meta_kubernetes_pod_container_name
+              stream: __syslog_severity_label

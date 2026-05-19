@@ -1,0 +1,409 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": null,
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(255, 96, 86, 0.67)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": null
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "count(kube_pod_status_phase{phase=~\"Running|Pending|Failed\"}) by (phase)",
+          "legendFormat": "{{ phase }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total Pods",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "valueRowHover": true,
+        "values": false
+      },
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 9,
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 3,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": null
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(kube_node_cpu_usage_seconds_total[5m]) * 100",
+          "legendFormat": "{{ node }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Node CPU Usage (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "valueRowHover": true,
+        "values": false
+      },
+      "type": "graph"
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 9,
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 9,
+        "y": 0
+      },
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": null
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(kube_node_memory_usage_bytes[5m]) / kube_node_spec_memory_capacity_bytes * 100",
+          "legendFormat": "{{ node }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Node Memory Usage (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "valueRowHover": true,
+        "values": false
+      },
+      "type": "graph"
+    },
+    {
+      "columns": [
+        {
+          "text": "Pod Name",
+          "type": "string"
+        },
+        {
+          "text": "CPU Usage (%)",
+          "type": "number"
+        }
+      ],
+      "datasource": "$datasource",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "limit": 10,
+      "sort": [
+        {
+          "col": 1,
+          "desc": true
+        }
+      ],
+      "targets": [
+        {
+          "expr": "rate(kube_pod_container_resource_limits_cpu_seconds_total{container!=\"POD\"}[5m]) * 100",
+          "legendFormat": "{{ pod }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Pods by CPU Usage (%)",
+      "type": "table"
+    },
+    {
+      "columns": [
+        {
+          "text": "Pod Name",
+          "type": "string"
+        },
+        {
+          "text": "Memory Usage (%)",
+          "type": "number"
+        }
+      ],
+      "datasource": "$datasource",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 5,
+      "limit": 10,
+      "sort": [
+        {
+          "col": 1,
+          "desc": true
+        }
+      ],
+      "targets": [
+        {
+          "expr": "rate(kube_pod_container_resource_limits_memory_bytes_total{container!=\"POD\"}[5m]) / kube_pod_spec_containers_memory_request_bytes * 100",
+          "legendFormat": "{{ pod }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Pods by Memory Usage (%)",
+      "type": "table"
+    },
+    {
+      "columns": [
+        {
+          "text": "Pod Name",
+          "type": "string"
+        },
+        {
+          "text": "Restart Count",
+          "type": "number"
+        }
+      ],
+      "datasource": "$datasource",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 6,
+      "limit": 10,
+      "sort": [
+        {
+          "col": 1,
+          "desc": true
+        }
+      ],
+      "targets": [
+        {
+          "expr": "kube_pod_container_status_restarts_total{container!=\"POD\"}",
+          "legendFormat": "{{ pod }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Pod Restarts",
+      "type": "table"
+    },
+    {
+      "colorMode": "critical",
+      "datasource": "$datasource",
+      "fill": 1,
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 0,
+        "y": 16
+      },
+      "id": 7,
+      "options": {},
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "index": 0,
+          "value": 80
+        }
+      ],
+      "title": "PVC Usage (%)",
+      "type": "gauge"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 3,
+        "y": 16
+      },
+      "id": 8,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "connected",
+      "options": {
+        "alertThreshold": null
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(kube_persistentvolumeclaim_storage_requests_bytes[5m]) / kube_persistentvolume_capacity_bytes * 100",
+          "legendFormat": "{{ pvc }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "PVC Usage (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "valueRowHover": true,
+        "values": false
+      },
+      "type": "graph"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "-- All --",
+          "value": "$__all"
+        },
+        "datasource": null,
+        "definition": "",
+        "includeAll": true,
+        "multi": false,
+        "name": "datasource",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Kubernetes Cluster Overview",
+  "uid": "",
+  "version": 0,
+  "weekStart": ""
+}

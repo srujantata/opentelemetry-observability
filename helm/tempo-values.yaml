@@ -1,0 +1,35 @@
+global:
+  imagePullSecrets: []
+
+grafanaTempo:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "200m"
+    limits:
+      memory: "8Gi"
+      cpu: "500m"
+
+  config:
+    server:
+      mode: single-binary
+      storage:
+        backend: s3
+        s3:
+          endpoint: "s3.amazonaws.com"
+          bucket: "tempo-bucket"
+          accessKeyID: "access-key-id"
+          secretAccessKey: "secret-access-key"
+          region: "us-west-2"
+          retentionDays: 7
+
+    tracing:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+
+    search:
+      queryLanguage: traceql

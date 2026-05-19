@@ -1,0 +1,59 @@
+name: Validate Configs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-otel-collector-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'
+      
+      - name: Validate otel-collector/config.yaml
+        run: |
+          go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcol-contrib@latest
+          otelcol-contrib validate config.yaml
+
+  validate-helm-values:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+      
+      - name: Validate helm values
+        run: helm lint --dry-run .
+
+  validate-prometheus-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Prometheus
+        run: |
+          wget https://github.com/prometheus/prometheus/releases/download/v2.30.3/prometheus-2.30.3.linux-amd64.tar.gz
+          tar xvfz prometheus-2.30.3.linux-amd64.tar.gz
+          cd prometheus-2.30.3.linux-amd64
+      
+      - name: Validate Prometheus rules
+        run: ./promtool check rules alerts/
+
+  validate-grafana-dashboard-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Validate JSON
+        run: python -m json.tool grafana-dashboard.json

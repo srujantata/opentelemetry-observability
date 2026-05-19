@@ -1,0 +1,70 @@
+apiVersion: slo.slok.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: jenkins-slo
+spec:
+  targetValue: "0.999"
+  indicator:
+    type: Gauge
+    query: |
+      rate(jenkins_build_success_total[30d])
+  controlPlane:
+    type: PrometheusServiceLevel
+    spec:
+      serviceMonitorSelector:
+        matchLabels:
+          app: jenkins
+
+---
+apiVersion: slo.slok.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: sonarqube-slo
+spec:
+  targetValue: "0.999"
+  indicator:
+    type: Gauge
+    query: |
+      rate(sonarqube_analysis_success_total[30d])
+  controlPlane:
+    type: PrometheusServiceLevel
+    spec:
+      serviceMonitorSelector:
+        matchLabels:
+          app: sonarqube
+
+---
+apiVersion: slo.slok.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: harbor-slo
+spec:
+  targetValue: "0.999"
+  indicator:
+    type: Gauge
+    query: |
+      rate(harbor_repo_push_success_total[30d])
+  controlPlane:
+    type: PrometheusServiceLevel
+    spec:
+      serviceMonitorSelector:
+        matchLabels:
+          app: harbor
+
+---
+apiVersion: slo.slok.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: argocd-slo
+spec:
+  targetValue: "0.999"
+  indicator:
+    type: Gauge
+    query: |
+      rate(argocd_sync_success_total[30d])
+  controlPlane:
+    type: PrometheusServiceLevel
+    spec:
+      serviceMonitorSelector:
+        matchLabels:
+          app: argocd

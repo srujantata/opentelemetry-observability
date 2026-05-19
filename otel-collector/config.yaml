@@ -1,0 +1,86 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'kube-state-metrics'
+          static_configs:
+            - targets: ['kube-state-metrics:8080']
+        - job_name: 'node-exporter'
+          static_configs:
+            - targets: ['node-exporter:9100']
+
+  kubeletstats:
+    kubernetes_config:
+      auth_type: service_account
+      kubelet_service_urls:
+        - http://kubelet:10250/stats/summary
+
+  k8s_cluster:
+    auth_type: service_account
+    cluster_name: default-cluster
+    node_selector:
+      role: agent
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1000
+    max_queue_size: 20000
+
+  memory_limiter:
+    limit_mib: 512
+    check_interval: 30s
+
+  k8sattributes:
+    extract_k8s_metadata: true
+
+  resource:
+    attributes:
+      service.name: otelcol
+
+exporters:
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    queue_config:
+      max_queue_size: 50000
+      num_workers: 4
+
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      collector: otelcol
+
+  otlp:
+    endpoint: http://tempo:4317
+    compression: gzip
+
+extensions:
+  health_check:
+
+  pprof:
+
+  zpages:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [batch, memory_limiter, k8sattributes, resource]
+      exporters: [prometheusremotewrite]
+
+    traces:
+      receivers: [otlp, kubeletstats, k8s_cluster]
+      processors: [batch, memory_limiter, k8sattributes, resource]
+      exporters: [otlp]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter]
+      exporters: [loki]
+
+  extensions: [health_check, pprof, zpages]
